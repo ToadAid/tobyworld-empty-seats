@@ -26,6 +26,28 @@ burns away the DOUBT the doubters curse you with.
   you meet lands in THE CODEX.
 - `#selftest` plays a whole walk by itself, headless-safe, and writes the
   result to `#selftest-out` (`#selftest<N>` freezes after N ticks).
+- `#selfd` plays THE DAILY COVENANT and writes the day's seat + share line —
+  run it twice on one dawn and the output matches letter for letter.
 
-**v1** — future hops: the daily covenant (one seeded walk a day, DEEDLE-style),
-keeper companions, card art from the archive, the ledger of walkers.
+## THE DAILY COVENANT
+
+One walk a dawn, the same for every frog. Day 0 = 2026-10-27 (`DAWN 1`); the
+day's seed (`covenant-day-<day>` through the fnv bloodline) fixes the seat,
+the deal and the whole boss sequence with ONE mulberry stream consumed in
+order — so all viewers of one morning walk the identical covenant. The copy
+of the walk works on every end screen.
+
+## THE KEEPERS
+
+You never walk alone — one of the three keepers walks it with you:
+
+| Keeper | Blessing |
+|---|---|
+| 🟦 OG THE ELDER | every strike deals +2 light |
+| 🌫 HUSH | every duel opens quiet — the boss's first move dissolves; brings a HUSH card |
+| 🟨 SATOBY | every heal drinks +2 deeper |
+
+**v2 cards added** — SCRAPING THE SKY (T062), THE KEY AND THE LEAF (T085),
+CRYSTAL CLEAR (T047), HISTORY'S KEY (T031), STAY PREPARED (T076 · 常に準備を怠らないように).
+Still ahead: keeper portraits as battle actors, painted card faces, the
+ledger of walkers.
