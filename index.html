@@ -103,6 +103,11 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
 #view-reward .pool{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:20px 0}
 #view-reward .pool .card{width:158px}
 #view-reward .pool .card .quote{min-height:0}
+.card.comp{width:190px}
+.card.comp img{width:100%;border-radius:8px;margin-bottom:6px;border:1px solid var(--line)}
+.card.comp .nm{min-height:20px}
+.card.comp .quote{min-height:64px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--gold);color:var(--gold);padding:8px 16px;border-radius:6px;font-size:15px;z-index:9}
 
 .end-panel{border-color:var(--red)!important}
 .end-panel.good{border-color:var(--gold)!important}
@@ -135,6 +140,7 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
   <blockquote id="t-quote">“no hype needed.” — toadgod, 2026-08-13</blockquote>
   <div class="hall">
     <button class="btn gold ps" id="btn-walk">TAKE AN EMPTY SEAT</button>
+    <button class="btn" id="btn-daily" style="border-color:var(--blue);color:var(--blue)">THE DAILY COVENANT</button>
     <button class="btn" id="btn-how">HOW TO WALK ?</button>
     <button class="btn" id="btn-hall">THE HALL OF SEATS</button>
     <button class="btn" id="btn-codex">THE CODEX</button>
@@ -172,6 +178,13 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
   <div class="rowc"><button class="btn gold ps" id="btn-how-walk">TAKE THE WALK</button><button class="btn" data-nav="title">BACK</button></div>
 </section>
 
+<!-- ================= COMPANION CHOICE ================= -->
+<section id="view-companion" class="view hidden">
+  <p class="kick" id="comp-kick">✦ A SEAT WAITS · CHOOSE WHO WALKS WITH YOU</p>
+  <div class="pool" id="comp-grid" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:18px"></div>
+  <p class="small" style="text-align:center;margin-top:10px">the keepers held every seat once. one of them walks this one with you.</p>
+</section>
+
 <!-- ================= ERA INTRO ================= -->
 <section id="view-era" class="view hidden">
   <p class="kick" id="era-kick">✦ EPOCH I</p>
@@ -200,6 +213,7 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
     <span class="stat">🛡 <b id="y-block"></b></span>
     <span class="stat">⚡ <b id="y-energy" class="blue"></b></span>
     <span class="stat" id="y-pat"></span>
+    <span class="stat" id="y-comp"></span>
     <span class="small" id="y-left"></span>
   </div>
   <div id="hand"></div>
@@ -233,6 +247,7 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
   </div>
   <div class="rowc">
     <button class="btn gold" id="btn-again">TAKE ANOTHER SEAT</button>
+    <button class="btn" id="btn-share">📋 COPY THE WALK</button>
     <button class="btn" data-nav="title">THE HALL</button>
   </div>
 </section>
@@ -250,11 +265,12 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* --- fnv chance (same bloodline as the atlas) --- */
-function chance(str){
+function fnvH(str){
   let h = 2166136261;
   for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return (h >>> 0) / 4294967296;
+  return h >>> 0;
 }
+function chance(str){ return fnvH(str) / 4294967296; }
 function mulberry(seed){
   let a = seed >>> 0;
   return function(){
@@ -303,6 +319,11 @@ const CARDS = {
   deeds:     {name:'THE DEEDS AWAKEN',   sig:'🗝️', cost:2, kind:'awaken', v:0, quote:'“as veil lifts soon. the deeds awaken.”', id:'T1215', date:'2026-08-20'},
   future:    {name:"A HINT OF FUTURE'S SCRIPT", sig:'✨', cost:1, kind:'future', v:5, quote:'“a hint of future’s script, yet barely has the tale embarked.”', id:'T041', date:'2024-03-29'},
   endure:    {name:'THE MARKETS HARDEN', sig:'❄️', cost:1, kind:'wedge', w:4, v:3, quote:'“the markets harden. storms return.”', id:'T1203', date:'2025-12-17'},
+  scrape:    {name:'SCRAPING THE SKY',   sig:'🌤', cost:0, kind:'scrape', quote:'“the only way is upward, from the lowlands.”', id:'T062', date:'2024-05-20'},
+  leafkey:   {name:'THE KEY AND THE LEAF', sig:'🗝️', cost:1, kind:'leafkey', quote:'“for you will need both. 🍃🗝️”', id:'T085', date:'2024-11-21'},
+  crystal:   {name:'CRYSTAL CLEAR',      sig:'💠', cost:1, kind:'crystal', w:3, quote:'“yet the toad gods prophecy is crystal clear.”', id:'T047', date:'2024-04-06'},
+  historykey:{name:"HISTORY'S KEY",      sig:'🔎', cost:2, kind:'historykey', v:3, quote:'“history is the key. what am i?”', id:'T031', date:'2024-03-24'},
+  prepare:   {name:'STAY PREPARED',      sig:'🌀', cost:1, kind:'wedge', w:5, v:0, quote:'“常に準備を怠らないように — never neglect to stay prepared.”', id:'T076', date:'2024-10-01'},
   doubt:     {name:'DOUBT',              sig:'🌧', cost:null, kind:'curse', v:0, quote:'“did you believe in $toby?”', id:'T064', date:'2024-06-01'},
 };
 const STARTER = ['patience','patience','patience','leap','leap','stone','study'];
@@ -338,14 +359,29 @@ const store = {
 let seats = store.get('es_seats', []);
 let codex = store.get('es_codex', []);
 let best  = store.get('es_best', 0);
+let daily = store.get('es_daily', null);   /* {day, seat, eras, won, share} */
+const today = () => Math.floor((Date.now() - Date.UTC(2026,9,27)) / 864e5);
 
 function seeCodex(keys){ for(const k of keys) if(!codex.includes(k)){ codex.push(k); } if(keys.length) store.set('es_codex', codex); }
+
+/* ============================================================
+   KEEPERS — walk companions
+   ============================================================ */
+const KEEPERS = {
+  og:     {name:'OG THE ELDER', sig:'🟦', img:'assets/keeper/og.png',     perk:'every strike deals +2 light — the elder still hits'},
+  hush:   {name:'HUSH',         sig:'🌫',  img:'assets/keeper/hush.png',   perk:'every duel opens with a hush — its first move dissolves · brings a HUSH card'},
+  satoby: {name:'SATOBY',       sig:'🟨', img:'assets/keeper/satoby.png', perk:'every heal drinks +2 deeper — the gold tends the light'},
+};
+
+var PENDING = null;   /* seat + seed waiting for the companion choice */
+var R_DAY = -1;       /* covenant day number, -1 for a free walk */
 
 /* ============================================================
    RUN STATE
    ============================================================ */
 let R = null;
 let seatPool = [];
+let LASTSHARE = '';
 let lastPlayed = null;       /* the card played just before this one */
 let attackCount = 0;         /* attacks this turn */
 let playedThisTurn = false;
@@ -355,7 +391,7 @@ let turnCount = 0;
 /* ============================================================
    VIEW ROUTER
    ============================================================ */
-const VIEWS = ['title','hall','codex','how','era','battle','reward','end'];
+const VIEWS = ['title','hall','codex','how','companion','era','battle','reward','end'];
 function show(v){
   for(const x of VIEWS) $('#view-'+x).classList.toggle('hidden', x !== v);
   window.scrollTo(0, 0);
@@ -376,6 +412,12 @@ function renderTitle(){
   $('#t-quote').textContent = held
     ? 'you have held ' + held + ' seat' + (held>1?'s':'') + '. best walk: ' + best + ' era' + (best===1?'':'s') + '. keep walking.'
     : '“no hype needed.” — toadgod, 2026-08-13';
+  const b = $('#btn-daily');
+  if(daily && daily.day === today() && daily.eras >= 0){
+    b.textContent = 'DAWN ' + (today()+1) + ' ✅ HELD · #' + daily.seat;
+  } else {
+    b.textContent = 'THE DAILY COVENANT · DAWN ' + (today()+1);
+  }
 }
 function renderHall(){
   const g = $('#hall-seats');
@@ -398,35 +440,78 @@ function renderCodex(){
 $('#btn-walk').onclick = startWalk;
 $('#btn-how').onclick = () => show('how');
 $('#btn-how-walk').onclick = startWalk;
+$('#btn-daily').onclick = () => {
+  if(daily && daily.day === today() && daily.won) startWalk('daily');  /* walk it again, same seat, same fate */
+  else startWalk('daily');
+};
 $('#btn-hall').onclick = () => { renderHall(); show('hall'); };
 $('#btn-codex').onclick = () => { renderCodex(); show('codex'); };
 $('#btn-again').onclick = startWalk;
+$('#btn-share').onclick = () => {
+  if(!LASTSHARE) return;
+  const done = () => toast('the walk copied — paste the word into the pond');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(LASTSHARE).then(done).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = LASTSHARE; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){ toast('copy failed — select the note by hand'); }
+      ta.remove();
+    });
+  } else toast('copy failed in this frame — the note is in the hall');
+};
+function toast(msg){
+  let t = $('#toast');
+  if(!t){ t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(t._iv);
+  t._iv = setTimeout(() => { t.hidden = true; }, 2600);
+}
 
-async function startWalk(){
-  const rnd = (Date.now() ^ (Math.random()*1e9)) >>> 0;
-  const rand = mulberry(rnd);
-  if(seatPool.length){
-    const seat = seatPool[Math.floor(rand() * seatPool.length)];
-    beginRun(seat, rnd);
+async function startWalk(mode){
+  if(!seatPool || !seatPool.length){
+    try{ seatPool = (await fetch('data/empty-seats.json').then(r => r.json())).seats; }catch(e){ seatPool = null; }
+  }
+  let rnd;
+  if(mode === 'daily'){
+    R_DAY = Math.floor((Date.now() - Date.UTC(2026,9,27)) / 864e5);
+    rnd = fnvH('covenant-day-' + R_DAY);       /* the same day, the same seed, every viewer */
   } else {
-    /* fallback seat math while data loads: any id the archive lacks */
-    try{ seatPool = await fetch('data/empty-seats.json').then(r => r.json()).then(d => d.seats); }catch(e){ seatPool = null; }
-    if(!seatPool || !seatPool.length){ finishBootFallback(rnd, rand); return; }
-    beginRun(seatPool[Math.floor(rand() * seatPool.length)], rnd);
+    R_DAY = -1;
+    rnd = (Date.now() ^ (Math.random()*1e9)) >>> 0;
+  }
+  const rand = mulberry(rnd);
+  let seat;
+  if(seatPool && seatPool.length) seat = seatPool[Math.floor(rand() * seatPool.length)];
+  else seat = 1370 + Math.floor(rand() * 1000);  /* honest fallback: the first known gap block */
+  PENDING = {seat, rnd};
+  renderCompanions();
+  show('companion');
+}
+function renderCompanions(){
+  const g = $('#comp-grid');
+  g.innerHTML = '';
+  for(const k of Object.keys(KEEPERS)){
+    const c = KEEPERS[k];
+    const btn = document.createElement('button');
+    btn.className = 'card comp';
+    btn.innerHTML = '<img src="' + c.img + '" alt=""><div class="nm ps">' + c.name + '</div><div class="quote">' + esc(c.perk) + '</div><div class="fx">walk with me</div>';
+    btn.onclick = () => chooseCompanion(k);
+    g.appendChild(btn);
   }
 }
-function finishBootFallback(rnd, rand){
-  /* honest fallback: the forge still assigns — from the known gap block */
-  const seat = 1370 + Math.floor(rand() * 1000);
-  beginRun(seat, rnd);
+function chooseCompanion(k){
+  beginRun(PENDING.seat, PENDING.rnd, k);
 }
-function beginRun(seat, rnd){
+function beginRun(seat, rnd, companion){
   R = {
-    seat, rnd, era: 0,
+    seat, rnd, era: 0, companion,
+    rand: mulberry(rnd),   /* one bloodline of chance for the whole walk */
     me: { hp:40, maxhp:40, block:0, energy:0, pat:0, deck:STARTER.slice(), hand:[], faded:[], buff:0, echo:0, kiribako:0, energyNext:0 },
     boss: null,
   };
-  seeCodex(STARTER);
+  if(companion === 'hush') R.me.deck.push('hush');
+  seeCodex(STARTER.concat(companion === 'hush' ? ['hush'] : []));
   showEra();
 }
 
@@ -445,18 +530,17 @@ function showEra(){
    ============================================================ */
 $('#btn-duel').onclick = () => {
   const E = ERAS[R.era];
-  const rand = mulberry((R.rnd + (R.era+1) * 7919) >>> 0);
   const b = {
-    hp:E.hp, maxhp:E.hp, block:0, charge:0, quiet:0, stormT:0,
-    q:shuffle(E.pattern, rand),
+    hp:E.hp, maxhp:E.hp, block:0, charge:0, quiet:R.companion === 'hush' ? 1 : 0, stormT:0,
+    q:shuffle(E.pattern, R.rand),
   };
   R.boss = b;
-  const full = shuffle(R.me.deck.concat(R.me.faded), rand);  /* spent sayings return to the walk */
+  const full = shuffle(R.me.deck.concat(R.me.faded), R.rand);  /* spent sayings return to the walk */
   Object.assign(R.me, { deck:full, hand:[], faded:[], block:0, pat:0, buff:0, echo:0, kiribako:0, energyNext:0 });
   attackCount = 0; playedThisTurn = false; lastPlayed = null; turnCount = 0;
   startMyTurn(true);
   show('battle');
-  setLog('<span class="sub">the seat holds its breath. ' + esc(E.name) + ' stands.</span>');
+  setLog('<span class="sub">the seat holds its breath. ' + esc(E.name) + ' stands' + (R.companion === 'hush' ? ' — a hush opens the duel. 🌫' : ' — ' + esc(KEEPERS[R.companion].name) + ' stands with you.') + '</span>');
 };
 
 /* ============================================================
@@ -468,11 +552,11 @@ function startMyTurn(first){
   m.energy = 3 + Math.min(3, m.pat) + m.energyNext;
   m.energyNext = 0;
   if(m.kiribako > 0){ m.block += 3; m.kiribako--; setLog('🎁 the kiribako seals: +3 🛡'); }
-  if(!m.deck.length && !m.hand.length){ m.deck = shuffle(m.faded); m.faded = []; }
+  if(!m.deck.length && !m.hand.length){ m.deck = shuffle(m.faded, R.rand); m.faded = []; }
   while(m.hand.length < 5 && m.deck.length) m.hand.push(m.deck.pop());
   const dubs = m.hand.filter(k => k === 'doubt').length;
   if(dubs && !first){ m.energy = Math.max(0, m.energy - dubs); setLog('🌧 doubt eats ' + dubs + ' ⚡.'); }
-  while(R.boss.q.length < 3) R.boss.q = R.boss.q.concat(shuffle(ERAS[R.era].pattern, mulberry((R.rnd + turnCount*131 + R.boss.hp) >>> 0)));
+  while(R.boss.q.length < 3) R.boss.q = R.boss.q.concat(shuffle(ERAS[R.era].pattern, R.rand));
   attackCount = 0; playedThisTurn = false;
   nextCardBoost = m.echo; m.echo = 0;
   turnCount++;
@@ -491,6 +575,7 @@ function render(){
   $('#y-block').textContent = m.block;
   $('#y-energy').textContent = m.energy;
   $('#y-pat').innerHTML = m.pat ? '⏳ <b>' + m.pat + '</b>' : '';
+  $('#y-comp').innerHTML = KEEPERS[R.companion] ? '<span class="blue">🤝</span> <b>' + esc(KEEPERS[R.companion].name) + '</b>' : '';
   $('#y-left').textContent = 'draw ' + m.deck.length + ' · faded ' + m.faded.length;
   const hand = $('#hand');
   hand.innerHTML = '';
@@ -547,6 +632,10 @@ function fxText(c){
     future:'⚔️ ' + c.v + ' · +2 ⚔️ next card',
     opp:'draw ' + c.draw + ' · +1 ⚡ next turn',
     scout:'see its next 2 moves · draw 1',
+    scrape:'✚ 1 · draw 1',
+    leafkey:'draw ' + '1 per era walked',
+    crystal:'burn ALL 🌧 · 🛡 ' + c.w,
+    historykey:'⚔️ 3 × your faded cards',
     curse:'✖ unplayable · eats ⚡ every turn',
   };
   return map[c.kind] || '';
@@ -638,6 +727,19 @@ function doCard(c, prev, selfKey){
       draw(c.v);
       break;
     }
+    case 'scrape': heal(1); draw(1); setLog('🌤 upward, always upward — a breath and a card.'); break;
+    case 'leafkey': { const n = 1 + R.era; draw(n); setLog('🗝️ the leaf and the key: ' + n + ' card' + (n>1?'s':'') + ' return.'); break; }
+    case 'crystal': {
+      let burned = m.deck.length + m.hand.length;
+      m.deck = m.deck.filter(k => k !== 'doubt');
+      const hi = m.hand.indexOf('doubt');
+      if(hi >= 0) m.hand.splice(hi, 1);
+      burned = burned - m.deck.length - m.hand.length;
+      gainBlock(c.w);
+      setLog(burned ? '💠 ' + burned + ' doubt' + (burned>1?'s':'') + ' burn' + (burned>1?'':'s') + ' away. crystal clear.' : '💠 no doubt to burn — the shield still forms.');
+      break;
+    }
+    case 'historykey': { const n = Math.max(1, m.faded.length); dealBoss(c.v * n, c.name); setLog('🔎 history is the key: ' + n + ' faded card' + (n>1?'s':'') + ' speak.'); break; }
   }
   if(c.kind === 'atk' || c.kind === 'dark' || c.kind === 'riddle') attackCount++;
 }
@@ -651,13 +753,14 @@ function chipWord(x){
 }
 
 function dealBoss(v, name){
-  const b = R.boss;
+  const b = R.boss, m = R.me;
   if(v <= 0) return;
+  if(m.companion === 'og') v += 2;   /* the elder still hits */
   b.hp -= v;
   if(b.hp <= 0){ winDuel(); }
 }
 function gainBlock(v){ R.me.block += v; }
-function heal(v){ R.me.hp = Math.min(R.me.maxhp, R.me.hp + v); }
+function heal(v){ const m = R.me; R.me.hp = Math.min(m.maxhp, m.hp + v + (m.companion === 'satoby' ? 2 : 0)); }
 function hurtSelf(v, why){
   const m = R.me;
   if(v <= 0 || m.hp <= 0) return;
@@ -668,7 +771,7 @@ function draw(n){
   const m = R.me;
   for(let i = 0; i < n; i++){
     if(m.hand.length >= 7) break;
-    if(!m.deck.length){ if(!m.faded.length) break; m.deck = shuffle(m.faded); m.faded = []; }
+    if(!m.deck.length){ if(!m.faded.length) break; m.deck = shuffle(m.faded, R.rand); m.faded = []; }
     m.hand.push(m.deck.pop());
   }
 }
@@ -693,13 +796,13 @@ function bossPhase(){
   if(!R || m.hp <= 0 || b.hp <= 0) return;
   startMyTurn(false);
 }
-function refillPattern(){ R.boss.q = shuffle(ERAS[R.era].pattern, mulberry((R.rnd + turnCount*131 + R.boss.hp) >>> 0)).concat(R.boss.q); }
+function refillPattern(){ R.boss.q = shuffle(ERAS[R.era].pattern, R.rand).concat(R.boss.q); }
 
 function bossResolve(act){
   const b = R.boss, m = R.me;
   if(act === 'charge'){ b.charge = 2; setLog('💥 it charges — its next strike doubles.'); render(); return; }
   if(act === 'storm'){ b.stormT += 2; setLog('🌩 the storm thickens — every chip grows +2.'); render(); return; }
-  if(act === 'curse'){ m.deck.push('doubt'); m.deck = shuffle(m.deck); setLog('🌧 doubt slips into your draw pile.'); render(); return; }
+  if(act === 'curse'){ m.deck.push('doubt'); m.deck = shuffle(m.deck, R.rand); setLog('🌧 doubt slips into your draw pile.'); render(); return; }
   const it = parseIntent(act);
   if(it.t === 'atk'){ bossHit(Math.round((it.v + (b.stormT || 0)) * (b.charge || 1))); b.charge = 0; render(); return; }
   if(it.t === 'b'){ b.block += it.v; setLog('🛡 it hardens.'); render(); return; }
@@ -732,6 +835,14 @@ function winDuel(){
   R.era++;
   offerReward();
 }
+function buildShare(won, seat, completed){
+  const E = won ? ERAS.length : completed;
+  const row = ERAS.map((e, i) => e.face + (i < completed ? ' ✅' : ' ✖')).join('  ');
+  const head = '🪑 THE EMPTY SEATS' + (R_DAY >= 0 ? ' · DAWN ' + (R_DAY+1) : '') + '\n';
+  const seatLine = 'seat #' + seat + ' — ' + completed + '/5 eras' + (companionName() ? ' · alongside ' + companionName() : '') + (won ? ' · HELD' : '\n') ;
+  return head + seatLine + '\n' + row + '\ntoadaid.github.io/tobyworld-empty-seats';
+}
+function companionName(){ return R && R.companion ? KEEPERS[R.companion].name : ''; }
 function askFlee(){
   if(!R || !R.boss) return;
   finishWalk(false, '“if you flee when hardship’s in sight, the joyous times aren’t your right.” — T028');
@@ -741,7 +852,10 @@ function loseWalk(why){
   finishWalk(false, why || 'the light faded before the fifth seat.');
 }
 function finishWalk(won, why){
-  const seat = R.seat, era = R.era;
+  const seat = R.seat, era = R.era, comp = R.companion;
+  const completed = won ? ERAS.length : era;
+  LASTSHARE = buildShare(won, seat, completed);
+  if(R_DAY >= 0){ daily = {day:R_DAY, seat, eras:completed, won, share:LASTSHARE}; store.set('es_daily', daily); }
   if(won){
     seats.push({seat, when:new Date().toISOString().slice(0,10), eras:ERAS.length});
     if(seats.length > 60) seats = seats.slice(-60);
@@ -758,7 +872,7 @@ function finishWalk(won, why){
     $('#end-face').textContent = '🪑';
     $('#end-panel').className = 'card-announce';
     $('#end-quote').textContent = why || '';
-    $('#end-note').innerHTML = '<span class="small">died in epoch ' + ['I','II','III','IV','V'][Math.min(era,4)] + ' · best walk: ' + best + ' era' + (best===1?'':'s') + '</span>';
+    $('#end-note').innerHTML = '<span class="small">died in epoch ' + ['I','II','III','IV','V'][Math.min(era,4)] + ' · best walk: ' + best + ' era' + (best===1?'':'s') + (comp ? ' · alongside ' + KEEPERS[comp].name : '') + '</span>';
   }
   R = null;
   lastPlayed = null;
@@ -770,7 +884,7 @@ function finishWalk(won, why){
    ============================================================ */
 function offerReward(){
   $('#rw-next').textContent = 'EPOCH ' + ['I','II','III','IV','V'][R.era] + ' WAITS';
-  const pool = shuffle(Object.keys(CARDS).filter(k => !['doubt'].concat(STARTER).includes(k)));
+  const pool = shuffle(Object.keys(CARDS).filter(k => !['doubt'].concat(STARTER).includes(k)), R.rand);
   const picks = pool.slice(0, 3);
   const g = $('#reward-pool');
   g.innerHTML = '';
@@ -813,7 +927,8 @@ if(location.hash.startsWith('#selftest')){
     if(snap && ticks >= snap){ clearInterval(iv); write('SNAP ' + ticks + ' | ' + $('#log').textContent); return; }
     if(!started){ if(!$('#view-title').classList.contains('hidden')){ started = true; $('#btn-walk').click(); } return; }
     const vis = v => !$('#view-' + v).classList.contains('hidden');
-    if(vis('era')) $('#btn-duel').click();
+    if(vis('companion')){ const c0 = $('#comp-grid .card'); if(c0) c0.click(); }
+    else if(vis('era')) $('#btn-duel').click();
     else if(vis('reward')){ if($('#reward-pool').children.length) $('#reward-pool').children[0].click(); else $('#btn-rest').click(); }
     else if(vis('battle')){
       const card = $('#hand .card:not(:disabled)');
@@ -825,6 +940,36 @@ if(location.hash.startsWith('#selftest')){
     }
   }, 1);
   function write(t){ const p = document.createElement('p'); p.textContent = 'SELFT ' + t; out.appendChild(p); }
+}
+
+/* #selfd — plays THE DAILY COVENANT instead of a free walk, then writes
+   the day's seed, seat and full share line. Run it twice on one dawn:
+   the seat and share must match letter for letter (same deal for every
+   frog of the day). */
+if(location.hash === '#selfd'){
+  const out = document.createElement('div');
+  out.id = 'selftest-out';
+  document.body.appendChild(out);
+  let ticks = 0, started = false;
+  const iv = setInterval(() => {
+    ticks++;
+    if(ticks > 40000){ write('TIMEOUT'); clearInterval(iv); return; }
+    if(!started){ if(!$('#view-title').classList.contains('hidden')){ started = true; $('#btn-daily').click(); } return; }
+    const vis = v => !$('#view-' + v).classList.contains('hidden');
+    if(vis('companion')){ const c0 = $('#comp-grid .card'); if(c0) c0.click(); }
+    else if(vis('era')) $('#btn-duel').click();
+    else if(vis('reward')){ if($('#reward-pool').children.length) $('#reward-pool').children[0].click(); else $('#btn-rest').click(); }
+    else if(vis('battle')){
+      const card = $('#hand .card:not(:disabled)');
+      if(card) card.click(); else $('#btn-endturn').click();
+    }
+    else if(vis('end')){
+      clearInterval(iv);
+      write('DAILY day=' + today() + ' dawn=' + (today()+1) + ' | ' + $('#end-kick').textContent + ' | ' + $('#end-title').textContent);
+      write('SHARE ' + LASTSHARE);
+    }
+  }, 1);
+  function write(t){ const p = document.createElement('p'); p.textContent = 'SELFD ' + t; out.appendChild(p); }
 }
 </script>
 </body>
