@@ -107,6 +107,11 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
 .end-panel{border-color:var(--red)!important}
 .end-panel.good{border-color:var(--gold)!important}
 
+/* ---------- how ---------- */
+.howstep{display:flex; gap:14px; align-items:flex-start; background:rgba(12,42,51,.5); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-top:10px}
+.howstep .n{flex:none; width:26px; height:26px; line-height:26px; text-align:center; border:1px solid var(--gold); border-radius:50%; font-size:10px; color:var(--gold); margin-top:3px}
+.howstep p{margin:0; font-size:18px; min-width:0}
+
 .codex-grid{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
 .cod{border:1px solid var(--line); background:var(--panel); border-radius:6px; padding:8px 10px; max-width:270px; font-size:15px}
 .cod b{color:var(--gold); font-size:10px; font-family:'Press Start 2P',monospace}
@@ -130,6 +135,7 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
   <blockquote id="t-quote">“no hype needed.” — toadgod, 2026-08-13</blockquote>
   <div class="hall">
     <button class="btn gold ps" id="btn-walk">TAKE AN EMPTY SEAT</button>
+    <button class="btn" id="btn-how">HOW TO WALK ?</button>
     <button class="btn" id="btn-hall">THE HALL OF SEATS</button>
     <button class="btn" id="btn-codex">THE CODEX</button>
   </div>
@@ -151,6 +157,19 @@ blockquote{margin:6px 0; padding-left:10px; border-left:2px solid var(--line); c
   <p class="small" id="codex-count"></p>
   <div id="codex-grid" class="codex-grid"></div>
   <div class="rowc" style="justify-content:flex-start"><button class="btn" data-nav="title">BACK</button></div>
+</section>
+
+<!-- ================= HOW TO WALK ================= -->
+<section id="view-how" class="view hidden">
+  <p class="kick">✦ HOW TO WALK</p>
+  <h2 class="gold">THE COVENANT, IN SIX BREATHS</h2>
+  <div class="howstep"><span class="n ps">1</span><p>the forge assigns you an <b class="gold">empty seat</b> — one of the 1,131 the contract carved but never minted. you can't own it; you <b>walk</b> it. hold it through five duels and it's yours in the ledger.</p></div>
+  <div class="howstep"><span class="n ps">2</span><p>each era, one enemy stands. it <b class="red">announces its next two moves</b> at the right of its bar: <span class="intent near">⚔️ 9</span> = hit that hard, <span class="intent near">💥 CHR</span> its next hit doubles, <span class="intent near">🌧</span> it curses your deck, <span class="intent near">✚</span> it heals, <span class="intent near">🌀</span> it copies your last card.</p></div>
+  <div class="howstep"><span class="n ps">3</span><p>you get <b class="blue">3 ⚡</b> a turn and a hand of 5 cards. every card costs ⚡ (the blue circle). <b>click the card to play it.</b> ⚔️ light = damage · 🛡 = shield that soaks hits · ✚ = you heal.</p></div>
+  <div class="howstep"><span class="n ps">4</span><p>like your cards too much? <b>END TURN</b> without playing anything and <b class="gold">patience ⏳ grows</b> (up to 3) — next turn each patience is +1 ⚡. stillness is strength… but the enemy still moves. pick your moment.</p></div>
+  <div class="howstep"><span class="n ps">5</span><p>played cards fade to the pile and come back around the bend. win a duel → choose <b>1 of 3 new sayings</b> and rest. lose → the seat stays empty. nothing breaks — take another.</p></div>
+  <div class="howstep"><span class="n ps">6</span><p>read the cards before you play them — every card is a <b>real toadgod saying</b> and it means what it says: darkness hurts you, the stone waits, a hush silences. walk wise.</p></div>
+  <div class="rowc"><button class="btn gold ps" id="btn-how-walk">TAKE THE WALK</button><button class="btn" data-nav="title">BACK</button></div>
 </section>
 
 <!-- ================= ERA INTRO ================= -->
@@ -336,7 +355,7 @@ let turnCount = 0;
 /* ============================================================
    VIEW ROUTER
    ============================================================ */
-const VIEWS = ['title','hall','codex','era','battle','reward','end'];
+const VIEWS = ['title','hall','codex','how','era','battle','reward','end'];
 function show(v){
   for(const x of VIEWS) $('#view-'+x).classList.toggle('hidden', x !== v);
   window.scrollTo(0, 0);
@@ -377,6 +396,8 @@ function renderCodex(){
    WALK START
    ============================================================ */
 $('#btn-walk').onclick = startWalk;
+$('#btn-how').onclick = () => show('how');
+$('#btn-how-walk').onclick = startWalk;
 $('#btn-hall').onclick = () => { renderHall(); show('hall'); };
 $('#btn-codex').onclick = () => { renderCodex(); show('codex'); };
 $('#btn-again').onclick = startWalk;
@@ -774,6 +795,7 @@ $('#btn-skip').onclick = () => { R.me.maxhp += 2; R.me.hp += 2; showEra(); };
 fetch('data/empty-seats.json').then(r => r.json()).then(d => { seatPool = d.seats; renderTitle(); }).catch(() => { seatPool = null; renderTitle(); });
 renderTitle();
 show('title');
+if(location.hash === '#how') show('how');   /* deep link for the lost frogs */
 
 /* ============================================================
    SELFTEST — hash #selftest: the page plays itself, then
